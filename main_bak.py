@@ -1,10 +1,8 @@
-from re import L
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 
-st.set_page_config(page_title="Performance KPIs", page_icon=":bar_chart:", layout="wide")
+st.set_page_config(page_title="Performance KPIs", page_icon=":bar_chart:")
 
 st.title('Performance KPI')
 
@@ -86,9 +84,9 @@ st.subheader('KPI deiner offenen Jobs:')
 # dein bester Job
 persb_jobs = avg_groupby(persb_data, 'job_id')
 min_job = persb_jobs.cv_to_interv.min()
-# st.sidebar.success(f'Dein schnellster CV to Interview hat {min_job} Tage gedauert!')
-# if st.sidebar.button('High 5!!'):
-#     st.balloons()
+st.sidebar.success(f'Dein schnellster CV to Interview hat {min_job} Tage gedauert!')
+if st.sidebar.button('High 5!!'):
+    st.balloons()
 
 st.bar_chart(persb_jobs)
 
@@ -106,13 +104,12 @@ cv_offer_all.metric("Offer to Placement", offer_avg_all, (-offer_delta))
 
 
 # Chart - Overall
-l_tbl, r_tbl = st.columns(2)
-l_tbl.subheader("Übersicht nach Standorten")
+st.subheader("Übersicht nach Standorten")
 office_jobs = column_df(data,['persb_loc', 'offer_to_place', 'interv_to_offer', 'cv_to_interv'])
 office_jobs = avg_groupby(office_jobs, 'persb_loc')
 # https://docs.streamlit.io/library/api-reference/charts/st.plotly_chart
-l_tbl.bar_chart(office_jobs)
-r_tbl.dataframe(office_jobs.style.highlight_min(axis=0).format("{:.2}"))
+st.bar_chart(office_jobs)
+st.dataframe(office_jobs.style.highlight_min(axis=0).format("{:.2}"))
 
 st.subheader("Details zum Standort")
 persb_loc = st.selectbox('Welche Standorte möchtest du sehen?', data.persb_loc.unique())
@@ -121,19 +118,14 @@ job_loc_by = filter_df(data, 'persb_loc', persb_loc, job_loc_by_kpi)
 job_loc_by.set_index('job_loc', inplace=True)
 avg_job_loc = job_loc_by.groupby('job_loc').mean()
 
-l_tbl, r_tbl = st.columns(2)
-l_tbl.subheader(f"{persb_loc} sucht Job in den Städten:")
-l_tbl.dataframe(avg_job_loc.style.format("{:.2}"))
+st.subheader(f"{persb_loc} sucht Job in den Städten:")
+st.dataframe(avg_job_loc.style.format("{:.2}"))
 
-r_tbl.subheader(f"Berufserfahrung der Kandidaten")
+st.subheader(f"Berufserfahrung der Kandidaten am Standort {persb_loc}")
 job_loc_exp = filter_df(data, 'persb_loc', persb_loc, ['job_loc', 'candidate_lvl'])
 job_loc_exp.set_index('job_loc', inplace=True)
-# job_loc_exp = job_loc_exp.drop_duplicates()
-job_loc_exp['sum'] = job_loc_exp['candidate_lvl'].count()
-## Pie Chart Plotly
-fig = px.pie(job_loc_exp, values='sum', names='candidate_lvl')
-r_tbl.plotly_chart(fig, use_container_width=True)
-
+job_loc_exp = job_loc_exp.drop_duplicates() 
+job_loc_exp
 
 
 
